@@ -23,13 +23,15 @@ func main() {
 	// Initialize the database
 	config.InitDB()
 
+	gin.SetMode(gin.ReleaseMode)
+
 	// Initialize the router
 	router := gin.Default()
 	//router.Use(cors.Default()) // Enable CORS
 
 	// Public routes
 	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
+		c.JSON(200, gin.H{"message": "pong ... filecheck says hello!"})
 	})
 	router.POST("/auth/login", auth.LoginHandler)
 	router.POST("/auth/register", auth.RegisterHandler)
