@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/techninja8/FileCheck/api/middleware"
 	"github.com/techninja8/FileCheck/config"
 )
 
@@ -18,6 +19,22 @@ func DownloadHandler(c *gin.Context) {
 	db, err := config.InitDB()
 	if err != nil {
 		fmt.Printf("failed to initialize database")
+		return
+	}
+
+	token, err := middleware.GetTokenFromRequest(c)
+	if err != nil {
+		fmt.Printf("failed to get token from request, %v", err)
+		return
+	}
+
+	validAccess, err := middleware.VerifyFileOwnership(c, db, fileID, token)
+	if !validAccess {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Access to file denied, pls login to get proper token for user"})
+		return
+	}
+	if err != nil {
+		fmt.Printf("failed to check access, %v", err)
 		return
 	}
 

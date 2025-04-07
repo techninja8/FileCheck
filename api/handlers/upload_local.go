@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/techninja8/FileCheck/api/middleware"
 	"github.com/techninja8/FileCheck/config"
 )
 
@@ -81,8 +82,25 @@ func UploadHandler(c *gin.Context) {
 		return
 	}
 
-	_, err = db.Exec(`INSERT INTO files (id, filename, hash, uploaded_at, location) VALUES (?, ?, ?, ?, ?)`,
-		fileID, header.Filename, fileHash, time.Now(), filePath)
+	token, err := middleware.GetTokenFromRequest(c)
+	if err != nil {
+		fmt.Printf("failed to get token from request, %v", err)
+		return
+	}
+
+	useremail, err := middleware.GetEmailFromToken(token)
+	if err != nil {
+		fmt.Printf("failed to get email from token, %v", err)
+		return
+	}
+
+	username, err := middleware.GetUsernameFromEmail(c, useremail)
+
+	if err != nil {
+		fmt.Printf("failed to get the username from token %v", err)
+	}
+	_, err = db.Exec(`INSERT INTO files (id, owner, filename, hash, uploaded_at, location) VALUES (?, ?, ?, ?, ?, ?)`,
+		fileID, username, header.Filename, fileHash, time.Now(), filePath)
 
 	if err != nil {
 		log.Printf("Failed to insert file metadata: %v", err)

@@ -52,8 +52,6 @@ func GetTokenFromRequest(c *gin.Context) (string, error) {
 }
 
 func GetUsernameFromEmail(c *gin.Context, email string) (string, error) {
-
-	// I have a variable (string known as email), how do i query my DB to get the associated username with that email, they are both in table users
 	query := `SELECT username FROM users WHERE email = ?`
 	var username string
 	err := db.QueryRow(query, email).Scan(&username)
@@ -65,4 +63,34 @@ func GetUsernameFromEmail(c *gin.Context, email string) (string, error) {
 	}
 
 	return username, nil
+}
+
+func VerifyFileOwnership(c *gin.Context, db *sql.DB, fileID, tokenString string) (bool, error) {
+	// This should get the email from the token
+	email, err := GetEmailFromToken(tokenString)
+	if err != nil {
+		return false, fmt.Errorf("failed to get email from token, %v", err)
+	}
+
+	// This should get the username from the email
+	username, err := GetUsernameFromEmail(c, email)
+	if err != nil {
+		return false, fmt.Errorf("unable to get username from token: %w", err)
+	}
+
+	var owner string
+	query := "SELECT owner FROM files WHERE id = ?"
+	err = db.QueryRow(query, fileID).Scan(&owner)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, fmt.Errorf("file not found: %w", err)
+		}
+		return false, fmt.Errorf("failed to query file owner: %w", err)
+	}
+
+	if owner != username {
+		return false, fmt.Errorf("access denied")
+	}
+
+	return true, nil
 }
