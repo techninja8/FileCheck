@@ -9,7 +9,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"github.com/techninja8/FileCheck/config"
 )
+
+var db, _ = config.InitDB()
 
 // GetEmailFromToken extracts the email from a JWT token
 func GetEmailFromToken(tokenString string) (string, error) {
@@ -49,7 +52,6 @@ func GetTokenFromRequest(c *gin.Context) (string, error) {
 }
 
 func GetUsernameFromEmail(c *gin.Context, email string) (string, error) {
-	db := c.MustGet("db").(*sql.DB)
 
 	// I have a variable (string known as email), how do i query my DB to get the associated username with that email, they are both in table users
 	query := `SELECT username FROM users WHERE email = ?`

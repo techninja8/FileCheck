@@ -3,7 +3,6 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -44,26 +43,18 @@ func InitDB() (*sql.DB, error) {
 }
 
 func initializeSchema(db *sql.DB) error {
-	schema := `
-	CREATE TABLE IF NOT EXISTS users (
-    	id INTEGER PRIMARY KEY AUTOINCREMENT,
-    	username TEXT NOT NULL UNIQUE,
-		email TEXT NOT NULL UNIQUE,
-    	password TEXT NOT NULL,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	);
-	CREATE TABLE IF NOT EXISTS files (
-		id SERIAL PRIMARY KEY,
-		filename VARCHAR(255) NOT NULL,
-		hash VARCHAR(64) NOT NULL,
-		uploaded_at TIMESTAMP NOT NULL,
-		location VARCHAR(1024) NOT NULL
-	);
-	`
-	_, err := db.Exec(schema)
+	schemaPath := "/home/tnxl/FileCheck/db/migration/schema.sql"
+
+	content, err := os.ReadFile(schemaPath)
 	if err != nil {
-		log.Fatalf("Failed to initialize schema: %v", err)
+		return fmt.Errorf("failed to read schema file: %w", err)
 	}
-	fmt.Println("Database schema initialized successfully!")
+
+	_, err = db.Exec(string(content))
+	if err != nil {
+		return fmt.Errorf("failed to execute schema: %w", err)
+	}
+
+	fmt.Println("Database schema initialized successfully from file.")
 	return nil
 }

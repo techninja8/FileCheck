@@ -14,9 +14,10 @@ import (
 
 func main() {
 	// Load environment variables
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, relying on system env vars")
+	} else {
+		log.Println(".env loaded")
 	}
 
 	// Initialize the database
@@ -24,10 +25,16 @@ func main() {
 
 	// Initialize the router
 	router := gin.Default()
+	//router.Use(cors.Default()) // Enable CORS
 
+	// Public routes
+	router.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{"message": "pong"})
+	})
 	router.POST("/auth/login", auth.LoginHandler)
 	router.POST("/auth/register", auth.RegisterHandler)
 
+	// Protected routes
 	authGroup := router.Group("/v1")
 	authGroup.Use(middleware.JWTMiddleware())
 	{

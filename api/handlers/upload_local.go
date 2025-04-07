@@ -3,24 +3,35 @@ package handlers
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/techninja8/FileCheck/config"
 )
 
 type UploadResponse struct {
-	ID       int    `json:"id"`
+	ID       string `json:"id"`
 	Filename string `json:"filename"`
 	Hash     string `json:"hash"`
 }
 
 func UploadHandler(c *gin.Context) {
+	// Get username from token
+	// Append username to database
+	db, err := config.InitDB()
+	if err != nil {
+		fmt.Printf("failed to initialize the database")
+		return
+	}
+
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file"})
@@ -63,10 +74,27 @@ func UploadHandler(c *gin.Context) {
 	}
 
 	// Store file metadata in SQLite3
-	var fileID int
-	err = config.DB.QueryRow("INSERT INTO files (filename, hash, uploaded_at, location) VALUES (?, ?, ?, ?) RETURNING id",
-		header.Filename, fileHash, time.Now(), filePath).Scan(&fileID)
+	//var fileID int
+	/*err = config.DB.QueryRow("INSERT INTO files (filename, hash, uploaded_at, location) VALUES (?, ?, ?, ?) RETURNING id",
+	header.Filename, fileHash, time.Now(), filePath).Scan(&fileID) */
+	/* if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store file metadata"})
+		return
+	} */
+
+	fileID := uuid.New().String()
+
+	if db == nil {
+		log.Println("Database is not initialized")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not available"})
+		return
+	}
+
+	_, err = db.Exec(`INSERT INTO files (id, filename, hash, uploaded_at, location) VALUES (?, ?, ?, ?, ?)`,
+		fileID, header.Filename, fileHash, time.Now(), filePath)
+
 	if err != nil {
+		log.Printf("Failed to insert file metadata: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store file metadata"})
 		return
 	}

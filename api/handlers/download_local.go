@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -14,9 +15,15 @@ import (
 func DownloadHandler(c *gin.Context) {
 	fileID := c.Param("id")
 
+	db, err := config.InitDB()
+	if err != nil {
+		fmt.Printf("failed to initialize database")
+		return
+	}
+
 	// Retrieve file metadata from SQLite3
 	var filename, filePath string
-	err := config.DB.QueryRow("SELECT filename, location FROM files WHERE id = ?", fileID).Scan(&filename, &filePath)
+	err = db.QueryRow("SELECT filename, location FROM files WHERE id = ?", fileID).Scan(&filename, &filePath)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
