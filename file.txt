@@ -1,1 +1,0 @@
-{"id":"b43de649-32ef-41d2-bc20-02202b6ee9f0","filename":"test.txt","hash":"e13822951e2c9204b0b6cd556f715662739e0cd4211a9cf66d03f16abef06349","valid":true}
