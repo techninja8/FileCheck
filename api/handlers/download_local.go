@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"database/sql"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -18,13 +18,13 @@ func DownloadHandler(c *gin.Context) {
 
 	db, err := config.InitDB()
 	if err != nil {
-		fmt.Printf("failed to initialize database")
+		log.Printf("failed to initialize database")
 		return
 	}
 
 	token, err := middleware.GetTokenFromRequest(c)
 	if err != nil {
-		fmt.Printf("failed to get token from request, %v", err)
+		log.Printf("failed to get token from request, %v", err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func DownloadHandler(c *gin.Context) {
 		return
 	}
 	if err != nil {
-		fmt.Printf("failed to check access, %v", err)
+		log.Printf("failed to check access, %v", err)
 		return
 	}
 

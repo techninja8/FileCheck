@@ -3,6 +3,7 @@ package config
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -55,6 +56,6 @@ func initializeSchema(db *sql.DB) error {
 		return fmt.Errorf("failed to execute schema: %w", err)
 	}
 
-	fmt.Println("Database schema initialized successfully from file.")
+	log.Println("Database schema initialized successfully from file.")
 	return nil
 }

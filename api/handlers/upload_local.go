@@ -3,7 +3,6 @@ package handlers
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -29,7 +28,7 @@ func UploadHandler(c *gin.Context) {
 	// Append username to database
 	db, err := config.InitDB()
 	if err != nil {
-		fmt.Printf("failed to initialize the database")
+		log.Printf("failed to initialize the database")
 		return
 	}
 
@@ -84,20 +83,20 @@ func UploadHandler(c *gin.Context) {
 
 	token, err := middleware.GetTokenFromRequest(c)
 	if err != nil {
-		fmt.Printf("failed to get token from request, %v", err)
+		log.Printf("failed to get token from request, %v", err)
 		return
 	}
 
 	useremail, err := middleware.GetEmailFromToken(token)
 	if err != nil {
-		fmt.Printf("failed to get email from token, %v", err)
+		log.Printf("failed to get email from token, %v", err)
 		return
 	}
 
 	username, err := middleware.GetUsernameFromEmail(c, useremail)
 
 	if err != nil {
-		fmt.Printf("failed to get the username from token %v", err)
+		log.Printf("failed to get the username from token %v", err)
 	}
 	_, err = db.Exec(`INSERT INTO files (id, owner, filename, hash, uploaded_at, location) VALUES (?, ?, ?, ?, ?, ?)`,
 		fileID, username, header.Filename, fileHash, time.Now(), filePath)

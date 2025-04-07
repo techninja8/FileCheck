@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -28,13 +27,13 @@ func CheckIntegrityHandler(c *gin.Context) {
 
 	db, err := config.InitDB()
 	if err != nil {
-		fmt.Printf("failed to initialize database")
+		log.Printf("failed to initialize database: %v", err)
 		return
 	}
 
 	token, err := middleware.GetTokenFromRequest(c)
 	if err != nil {
-		fmt.Printf("failed to get token from request, %v", err)
+		log.Printf("failed to get token from request, %v", err)
 		return
 	}
 
@@ -44,7 +43,7 @@ func CheckIntegrityHandler(c *gin.Context) {
 		return
 	}
 	if err != nil {
-		fmt.Printf("failed to check access, %v", err)
+		log.Printf("failed to check access, %v", err)
 		return
 	}
 

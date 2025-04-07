@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
@@ -63,7 +62,7 @@ func CreateUser(db *sql.DB, user *User) error {
 	query := "INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, ?)"
 	_, err := db.Exec(query, user.Username, user.Email, user.Password, time)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return err
 	}
 
