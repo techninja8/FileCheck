@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/techninja8/FileCheck/api/middleware"
@@ -52,22 +51,6 @@ func LoginHandler(c *gin.Context) {
 
 	c.SetCookie("token", token, 24*3600, "/", "", false, true) // Cookie set to exists for 24 hours
 	fmt.Println("token saved as cookie")
-
-	email, err := middleware.GetEmailFromToken(token)
-	if err != nil {
-		fmt.Println("failed to get email from token")
-	}
-
-	username, err := middleware.GetUsernameFromEmail(c, email)
-	if err != nil {
-		fmt.Println("failed to get username from email")
-	}
-	data := username + ": " + token
-
-	err = os.WriteFile("tokens.txt", []byte(data), 0644)
-	if err != nil {
-		fmt.Println("failed to store tokens in file")
-	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
