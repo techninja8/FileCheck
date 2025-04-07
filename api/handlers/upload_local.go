@@ -73,15 +73,6 @@ func UploadHandler(c *gin.Context) {
 		return
 	}
 
-	// Store file metadata in SQLite3
-	//var fileID int
-	/*err = config.DB.QueryRow("INSERT INTO files (filename, hash, uploaded_at, location) VALUES (?, ?, ?, ?) RETURNING id",
-	header.Filename, fileHash, time.Now(), filePath).Scan(&fileID) */
-	/* if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store file metadata"})
-		return
-	} */
-
 	fileID := uuid.New().String()
 
 	if db == nil {

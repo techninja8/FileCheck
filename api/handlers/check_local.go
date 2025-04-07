@@ -32,15 +32,7 @@ func CheckIntegrityHandler(c *gin.Context) {
 	}
 	// Retrieve file metadata from SQLite3
 	var filename, storedHash, filePath string
-	/* err := config.DB.QueryRow("SELECT filename, hash, location FROM files WHERE id = ?", fileID).Scan(&filename, &storedHash, &filePath)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve file metadata"})
-		}
-		return
-	} */
+
 	log.Printf("Retrieving file metadata for ID: %s", fileID)
 
 	err = db.QueryRow("SELECT filename, hash, location FROM files WHERE id = ?", fileID).Scan(&filename, &storedHash, &filePath)
